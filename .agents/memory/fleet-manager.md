@@ -1,0 +1,190 @@
+---
+name: Fleet Manager milestone
+description: Durable product decisions for the Fleet Manager app.
+---
+
+The first milestone intentionally keeps fleet records local-first while using Supabase for Google Sign-In and logout. Khata charges are linked back to work logs and vehicles so customer balances, QR amounts, receipts, and vehicle profitability can be derived from the same work entry.
+
+**Why:** The user needs a usable operations tool immediately, including offline-friendly daily entry, while authentication is handled by the requested Supabase integration.
+
+**How to apply:** Future persistence work should preserve the current entity relationships and replace local storage behind the store boundary rather than changing the user-facing flows.
+
+The app now gates all routes behind Google OAuth, scopes fleet data to the authenticated Supabase user, and syncs the workspace into that user's Supabase auth metadata while retaining a user-specific local cache. Receipts use a branded invoice/project-report HTML preview and browser print/save-PDF flow, deriving customer data from Khata and owner/logo data from Settings.
+
+**Why:** The user requested account-specific access and a receipt matching the supplied service invoice image rather than the earlier raw text download.
+
+**How to apply:** Keep the startup login gate and do not put sign-in inside Settings; Settings should expose the signed-in account and Logout only. Keep invoice generation linked to Khata charges and Settings profile data. Google provider activation, consent-screen branding, and exact redirect allow-list entries remain Supabase dashboard configuration.
+
+The reference app direction is a dark mobile operations cockpit: deep navy surfaces, amber primary actions, compact six-item bottom navigation, header Settings/Calculator actions, and empty first-run records rather than seeded demo data.
+
+**Why:** The uploaded screenshots are the visual source of truth and show a field-ready fleet tool with clear first-run empty states.
+
+**How to apply:** Preserve the dark navy/amber shell when adding screens. New records must remain vehicle-linked where relevant, and the user-facing flows should prefer the existing Fleet, Logs, Khata, Fuel, Drivers, Calculator, Analytics, and Settings routes rather than introducing parallel modules.
+
+Work-log measurement is vehicle-specific: JCB work uses hours, while Hywa and Tipper work use trips plus diesel and do not expose hours. Logs transferred into Khata are represented by ledger entries linked through logId and omitted from the Logs history list.
+
+**Why:** Owners commonly price these machine types using different operating measures, and a transferred work entry should have one authoritative customer-ledger location rather than appearing in both sections.
+
+**How to apply:** Keep receipt generation free of QR markup; QR payment requests remain a separate Khata action. Preserve optional log description and non-mandatory log fields when extending the form.
+
+Logs history is an all-dates view of untransferred work logs; Khata is the authoritative destination after transfer, with linked work deletion removing both the ledger entry and source log.
+
+**Why:** The mobile reference shows multiple dated entries together and users need to edit or remove entries without duplicates reappearing in Logs.
+
+**How to apply:** Keep selection actions visible as Khata/Delete, preserve edit-before-transfer, and keep receipt fields driven by Settings plus the customer’s selected payment mode.
+
+Khata customer cards are intentionally tap-only summaries; payment status, GST opt-in, QR, payment entry, and receipt actions belong inside the customer detail view. Receipts are shared/downloaded as PDF files, while the HTML invoice remains only for print preview.
+
+**Why:** The supplied mobile references separate the customer list from the detailed account screen and explicitly require PDF receipt sharing without export/supporting-document controls.
+
+**How to apply:** Keep GST percentage and GSTIN in Settings, apply GST only when the customer’s Add GST control is enabled, and never expose paid/due controls on the outer Khata list.
+
+Receipt exports now render the same branded invoice HTML used by View Receipt before encoding the document as a PDF; the PDF path must not regress to a text-only generator.
+
+**Why:** A text-stream PDF produced a white/raw-text receipt instead of matching the supplied invoice reference.
+
+**How to apply:** Keep Share PDF, Download PDF, and View Receipt driven from the same invoice data and visual template, including company branding, date ranges, payment details, and status.
+
+The receipt and workspace export templates use a fixed standard-page canvas with bounded grid columns and explicit wrapping before rasterization.
+
+**Why:** Long company, address, payment, and customer values can otherwise overlap or push sections into an unreadable PDF.
+
+**How to apply:** Preserve the fixed-page/wrapping approach when adding invoice fields or new export sections. Show payment history descriptively, then show aggregate Paid Amount immediately above Grand Total; Grand Total is the remaining balance after payments.
+
+Notes are account-scoped local-first records with automatic creation dates and explicit add, edit, and delete actions; Home Quick Actions links to Notes instead of Khata.
+
+**Why:** The user needs a lightweight place for arbitrary fleet reminders without mixing notes into customer ledgers or work logs.
+
+**How to apply:** Keep notes independent from vehicles, customers, and receipts unless a future request explicitly links them.
+
+Supabase Google sign-in uses browser PKCE with explicit callback exchange, account selection, local-only logout, and callback cleanup; workspace data remains keyed by auth user ID.
+
+**Why:** Switching Google accounts in one browser can otherwise reuse stale callback/verifier state, or let automatic URL detection race the auth gate, producing a Supabase flow-state error before a session reaches the app.
+
+**How to apply:** Preserve explicit `exchangeCodeForSession`, `flowType: "pkce"`, app-specific auth storage, `prompt: "select_account"`, `signOut({ scope: "local" })`, and the current-origin/base-path redirect. Redirect URLs must still be allow-listed in Supabase for every domain used.
+
+FleetX is the user-facing app brand, with the supplied FleetX artwork used as the pre-login/auth initialization splash screen.
+
+**Why:** The user explicitly renamed the app from Fleet Manager to FleetX and provided the splash artwork as the visual source of truth.
+
+**How to apply:** Keep FleetX in visible app metadata, login/loading UI, and default-brand fallbacks; preserve any user-entered business/company name separately.
+
+Home shows the saved company name in place of the app label when one is configured, while receipts contain only user/business receipt details and never the FleetX app brand. Driver management is accessed from Fleet.
+
+**Why:** The user wants customer-facing screens and receipts to represent their business rather than the app product, while keeping driver operations grouped with fleet management.
+
+**How to apply:** Keep the Home company-name precedence and avoid adding product-brand fallbacks to invoice HTML or receipt share metadata; leave QR payment requests as a separate flow.
+
+Vercel must build the FleetX frontend artifact directly rather than running the workspace-wide build, which also compiles the unrelated API package and can surface its transitive `pngjs` type error.
+
+**Why:** The product is a Vite SPA that uses Supabase directly; the API artifact is not part of its Vercel static hosting path.
+
+**How to apply:** Keep Vercel's root-level configuration pointed at the fleet-manager build and output directory, with SPA rewrites to `index.html`.
+
+Vercel can use either the repository root or `artifacts/fleet-manager` as its Root Directory, but the output directory must be relative to that choice: `artifacts/fleet-manager/dist/public` at repo root, or `dist/public` inside the artifact.
+
+**Why:** Vercel reports a successful build but fails afterward when it searches the default `public` folder relative to a different project root.
+
+**How to apply:** Prefer `artifacts/fleet-manager` as Root Directory with the artifact-level `vercel.json`, or use the repository root with the root-level config; do not mix one root with the other root's output path.
+
+Responsive mode uses both viewport width and device identity, so phones that request a browser “Desktop site” still receive the compact mobile shell while actual desktop browsers receive the wide layout.
+
+**Why:** Mobile browsers can report a desktop-sized viewport when desktop-site mode is enabled, bypassing width-only media queries.
+
+**How to apply:** Preserve the device marker on the app shell and the mobile override rules when changing the layout breakpoints.
+
+The latest uploaded FleetX logo is reserved for the Chrome-installed app icon/PWA metadata; existing in-app splash, sign-in, and authenticated workspace visuals should not be replaced by it.
+
+**Why:** The user explicitly wants the uploaded artwork to appear only as the installed-app icon and asked not to change the app UI.
+
+**How to apply:** Keep the JPEG in the web app's icon/manifest links only. Preserve existing splash/login artwork and user-configured business logo behavior.
+
+Driver assignment is managed only from the Drivers section; vehicle forms do not collect driver identity, and Fleet display resolves the assigned driver from the driver-to-vehicle relationship.
+
+**Why:** A driver should be registered once and assigned consistently rather than duplicated as editable text on each vehicle.
+
+**How to apply:** Preserve assignment uniqueness when adding or editing drivers, and derive vehicle driver labels from the assignment.
+
+Receipt PDF pagination must render the complete receipt canvas first, then crop and add each A4-sized slice as its own PDF page; scaling one tall image with negative offsets can leave shared/downloaded PDFs showing only the first page.
+
+**Why:** The receipt HTML can grow beyond one page as work logs and payments increase, and the share path uses the generated PDF rather than the print preview.
+
+**How to apply:** Keep the invoice sheet overflow visible for export and paginate from the full rendered canvas whenever receipt content can exceed one page.
+
+In the planned owner/driver workspace, the driver sees the owner’s company logo and company name as read-only branding; the driver has no profile-picture option and cannot change the owner company name.
+
+**Why:** Driver identity and owner business identity must remain separate, while the owner’s branding should carry into the driver workspace.
+
+**How to apply:** Keep owner logo/name sourced from the linked owner profile, expose them read-only to drivers, and allow only driver-owned profile fields to be edited.
+
+In the planned driver workspace, drivers may edit or delete their own work logs to correct mistakes, but cannot modify another driver’s logs; the driver Settings footer should say “App made by Mandar.”
+
+**Why:** Drivers need to correct their own entries without gaining access to other drivers’ records, and the requested product credit is consistent across workspaces.
+
+**How to apply:** Enforce log ownership on edit/delete actions and use the latest “Mandar” wording if an earlier branding-credit value conflicts.
+
+Planned driver invite/access codes must be scoped to the permitted vehicle or vehicle set, and driver log permissions must enforce both vehicle scope and driver ownership.
+
+**Why:** A driver must not be able to work with another driver’s logs or use a vehicle outside the access granted by the owner/code.
+
+**How to apply:** Filter driver vehicle choices and log queries by code-granted vehicle access, then require the current driver identity for create, edit, delete, and payment-status mutations.
+
+The owner/driver workspace uses a server-side PostgreSQL boundary rather than relying on each Google account's local cache or Supabase metadata. Owner state is canonical in the shared workspace; driver mutations are merged only for that member's own records and permitted vehicles. Invoices are separate revocable records, and owner branding is read-only for drivers.
+
+**Why:** Cross-account sharing cannot be secured by browser-local state, and invoice delivery needs an owner-controlled revoke path that drivers cannot delete.
+
+**How to apply:** Keep identity and vehicle-scope checks in the API even when the frontend already filters routes or records. Treat the owner workspace as the source of truth for shared vehicles, payment transitions, documents, and invoice visibility.
+
+Workspace JSON requests must allow document and logo data URLs; the API parser needs an explicit multi-megabyte limit and JSON error responses for parser failures.
+
+**Why:** Owner creation sends the locally saved workspace state before authentication completes, so optional base64 assets can exceed Express's default 100 KB limit and otherwise surface as a misleading generic client error.
+
+**How to apply:** Keep the body limit aligned with the supported document size, and preserve structured error handling so the client can show actionable messages for oversized workspace payloads.
+
+The published FleetX URL can continue serving a previous static frontend bundle after local workflow fixes; production must be republished before phone users see client-side changes.
+
+**Why:** The API deployment was current while the production HTML referenced a stale frontend asset, so local verification and the live phone experience diverged.
+
+**How to apply:** When a user reports an old mobile UI after a frontend fix, compare the published asset hash with the current build and have the user publish the verified artifact before debugging the same stale client again.
+
+Workspace clients should retry authenticated API calls against the known production API origin when the hosting origin returns 404/405 for `/api` mutations.
+
+**Why:** Static frontend hosts can serve the SPA fallback for API paths or reject POST methods even though the Replit API service is healthy, causing both Owner and Driver actions to fail identically.
+
+**How to apply:** Keep the same-origin request first for normal deployments, then retry only 404/405 responses against the production API origin; do not hide genuine 401/403/404 business errors from the API.
+
+Full workspace JSON saves must be serialized per client and merged server-side for driver-owned records; manual refresh is safer than applying periodic full-state snapshots.
+
+**Why:** An older in-flight owner/driver snapshot can finish after a newer save and remove newly added logs even when each individual request returns 200.
+
+**How to apply:** Queue client writes, row-lock the workspace during read-modify-write, preserve driver records absent from stale owner payloads, and carry explicit deleted-log tombstones for intentional deletions.
+
+FleetX frontend builds require both `PORT` and `BASE_PATH` environment variables; the artifact's production build uses `PORT=23693 BASE_PATH=/`.
+
+**Why:** The Vite config intentionally fails fast when either routing or port configuration is missing, while the configured Vercel build supplies both values.
+
+**How to apply:** Use the artifact/Vercel build command or provide both variables for local production builds; do not weaken the config's required routing contract.
+
+Driver-owned fuel records need deletion tombstones, just like work logs, because owner/driver full-state merges otherwise can reintroduce a deleted record from a stale snapshot.
+
+**Why:** Fuel records are shared through the same serialized workspace boundary, so filtering only the current client state is not enough to make deletion durable across sessions.
+
+**How to apply:** Preserve deleted fuel IDs through owner and driver merge paths whenever adding or changing fuel deletion behavior.
+
+Khata bundling must move only the selected customer’s unbunched charge logs into a date-ranged batch; later logs stay in Work, while batch payments/status/GST/receipts remain batch-scoped.
+
+**Why:** Owners need a clean current-work list after closing a period and must be able to manage historical customer periods independently without mixing newer activity or customer-level payment state.
+
+**How to apply:** Filter Work by missing batch ID, filter Bunched detail by batch ID, and use the batch’s own date range and payment fields for every bundled action.
+
+Vehicle access is granted by owner-generated per-vehicle codes, not by a universal workspace invite code. A successful code join assigns the driver to that vehicle on the server.
+
+**Why:** Vehicle-specific access matches how owners assign work and prevents a driver from choosing unrelated fleet vehicles after joining.
+
+**How to apply:** Keep code lookup, assignment, and permitted-vehicle filtering inside the authenticated API boundary; frontend controls should only display or request codes.
+
+Owner factory reset removes shared fleet/customer records and clears vehicle assignments while preserving driver membership accounts. Driver factory reset removes only that driver's synced records and preserves membership and vehicle access.
+
+**Why:** Resetting operational data must not accidentally delete the people who still need access to the workspace.
+
+**How to apply:** Use separate owner and driver reset endpoints and preserve account/profile records during either operation.
