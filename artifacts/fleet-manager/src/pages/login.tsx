@@ -28,6 +28,8 @@ export default function Login({ adminOnly = false }: { adminOnly?: boolean }) {
       await signInWithPassword(email, password);
     }
   };
+  const showOAuthHelp = Boolean(authError && /(google|oauth|redirect|provider|supabase)/i.test(authError));
+  const appRedirectUrl = new URL(import.meta.env.BASE_URL || "/", window.location.origin).toString();
 
   return (
     <main className="min-h-[100dvh] bg-background flex flex-col items-center justify-center p-6">
@@ -76,12 +78,16 @@ export default function Login({ adminOnly = false }: { adminOnly?: boolean }) {
             <LogIn size={18} className="ml-1" />
           </button>
 
-           {authNotice && <div className="mt-5 rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-4 text-sm font-medium text-emerald-300">{authNotice}</div>}
+           {authNotice && <div role="status" className="mt-5 rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-4 text-sm font-medium text-emerald-300">{authNotice}</div>}
           {authError && (
-            <div className="mt-5 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive p-4 text-sm font-medium">
+             <div role="alert" aria-live="assertive" className="mt-5 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive p-4 text-sm font-medium">
               {authError}
-              {authError.toLowerCase().includes("provider") && (
-                <p className="mt-2 text-xs opacity-80">Enable Google under Supabase → Authentication → Providers, then add this app URL under Redirect URLs.</p>
+               {showOAuthHelp && (
+                 <div className="mt-3 space-y-2 text-xs opacity-90">
+                   <p>Enable Google in Supabase Authentication → Providers and enter the Google OAuth client credentials there. In Google Cloud, register the callback URL shown in the Supabase Google provider settings.</p>
+                   <p>Add this exact URL under Supabase Authentication → URL Configuration → Redirect URLs:</p>
+                   <code className="block break-all rounded-lg bg-black/20 p-2 select-all">{appRedirectUrl}</code>
+                 </div>
               )}
             </div>
           )}

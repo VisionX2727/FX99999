@@ -32,34 +32,55 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
 }
 
 function getCallbackError() {
-  const queryError = new URLSearchParams(window.location.search).get("error_description");
-  const hashError = new URLSearchParams(window.location.hash.replace(/^#/, "")).get("error_description");
-  return queryError || hashError;
+  const query = new URLSearchParams(window.location.search);
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const values = [
+    query.get("error"),
+    query.get("error_code"),
+    query.get("error_description"),
+    hash.get("error"),
+    hash.get("error_code"),
+    hash.get("error_description"),
+  ].filter((value): value is string => Boolean(value));
+  return values.length ? values.join(": ") : null;
 }
 
 function formatAuthError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
   const normalized = message.toLowerCase();
-  if (normalized.includes("failed to fetch") || normalized.includes("networkerror")) {
-    return "Fleetvix could not reach Supabase. Check the Vercel environment variables and try again.";
+  if (normalized.includes("failed to fetch") || normalized.includes("fetch failed") || normalized.includes("networkerror")) {
+    return "Fleetvix could not reach Supabase. Check this app's Supabase URL and publishable-key configuration, then try again.";
+  }
+  if (
+    normalized.includes("redirect_uri_mismatch") ||
+    normalized.includes("invalid_client") ||
+    normalized.includes("unauthorized_client")
+  ) {
+    return "Google rejected the OAuth configuration. Register the callback URL shown under Supabase Authentication → Providers → Google in Google Cloud, and allow this app URL under Supabase Authentication → URL Configuration → Redirect URLs.";
   }
   if (normalized.includes("redirect") && normalized.includes("not allowed")) {
-    return "This website URL is not allowed by Supabase. Add the deployed Vercel URL to Supabase Authentication → URL Configuration → Redirect URLs.";
+    return "This app URL is not allowed by Supabase. Add the exact current app URL under Supabase Authentication → URL Configuration → Redirect URLs.";
   }
-  if (normalized.includes("provider") && normalized.includes("not enabled")) {
-    return "Google sign-in is not enabled in Supabase. Enable Google under Authentication → Providers.";
+  if (
+    normalized.includes("provider_disabled") ||
+    (normalized.includes("provider") && normalized.includes("not enabled"))
+  ) {
+    return "Google sign-in is not fully configured in Supabase. Enable Google under Authentication → Providers and add the Google OAuth client credentials there.";
   }
   if (normalized.includes("invalid api key") || normalized.includes("apikey")) {
     return "The Supabase publishable key configured for this deployment is invalid.";
   }
+  if (normalized.includes("access_denied")) {
+    return "Google sign-in was denied or cancelled. Retry and approve the requested access for the selected account.";
+  }
   if (normalized.includes("oauth state") || normalized.includes("flow_state")) {
-    return "Google sign-in expired before it returned to the app. Please choose your Google account again.";
+    return "Google returned to Fleetvix, but this browser's sign-in state did not match. Allow the exact app URL in Supabase Authentication → URL Configuration → Redirect URLs, then retry in the same browser.";
   }
   if (normalized.includes("code verifier") || normalized.includes("pkce")) {
-    return "This Google sign-in attempt could not be verified. Please choose your Google account again.";
+    return "Fleetvix could not verify Google's sign-in callback. Retry in the same browser and tab, and make sure the app returns to the same URL where sign-in started.";
   }
   if (normalized.includes("timed out")) {
-    return "Fleetvix could not finish checking your session. Check your Supabase URL and network connection, then try again.";
+    return "Fleetvix could not finish checking your session. Check the Supabase URL and network connection, then try again.";
   }
   return message;
 }
@@ -138,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const finishAuthInitialization = async () => {
       const callbackError = getCallbackError();
       if (callbackError) {
-        setAuthError(decodeURIComponent(callbackError.replace(/\+/g, " ")));
+        setAuthError(formatAuthError(new Error(callbackError)));
         clearOAuthCallbackParams();
       }
 

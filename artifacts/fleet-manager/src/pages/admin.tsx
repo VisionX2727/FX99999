@@ -93,15 +93,15 @@ export default function AdminDashboard() {
     setPriority("");
     setCategory(value);
   };
-  const statCards: Array<{ label: string; value: number; Icon: LucideIcon }> = [
+  const statCards: Array<{ label: string; value: number; Icon: LucideIcon; focus?: string }> = [
     { label: "Total Users", value: stats.totalUsers, Icon: Users },
     { label: "Owners", value: stats.totalOwners, Icon: ShieldCheck },
     { label: "Drivers", value: stats.totalDrivers, Icon: Users },
-    { label: "Open Tickets", value: stats.openSupportTickets, Icon: MessageSquare },
-    { label: "High Priority", value: stats.highPriorityTickets, Icon: Filter },
+    { label: "Open Tickets", value: stats.openSupportTickets, Icon: MessageSquare, focus: "Open support" },
+    { label: "High Priority", value: stats.highPriorityTickets, Icon: Filter, focus: "Urgent problems" },
     { label: "Active Subs", value: stats.activeSubscriptions, Icon: CheckCircle2 },
     { label: "Expired Subs", value: stats.expiredSubscriptions, Icon: X },
-    { label: "All Tickets", value: stats.totalTickets, Icon: MessageSquare },
+    { label: "All Tickets", value: stats.totalTickets, Icon: MessageSquare, focus: "All support" },
   ];
 
   return (
@@ -114,11 +114,24 @@ export default function AdminDashboard() {
         <div className="grid h-full min-h-0 gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(380px,.9fr)]">
           <section className="flex min-h-0 flex-col gap-4">
              <div className="grid shrink-0 grid-cols-2 gap-2 md:grid-cols-4">
-               {statCards.map(({ label, value, Icon }) => (
-                 <button key={label} type="button" onClick={() => applyFocus(label === "Open Tickets" ? "Open support" : label === "High Priority" ? "Urgent problems" : label === "All Tickets" ? "All support" : label)} className="rounded-2xl border border-border bg-card p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/60 hover:bg-primary/5 active:scale-[.98]">
-                   <Icon size={16} className="text-primary" /><strong className="mt-2 block text-2xl font-black">{value}</strong><span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
-                 </button>
-               ))}
+                {statCards.map(({ label, value, Icon, focus }) => {
+                  const contents = (
+                    <>
+                      <Icon size={16} className="text-primary" />
+                      <strong className="mt-2 block text-2xl font-black">{value}</strong>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
+                    </>
+                  );
+                  return focus ? (
+                    <button key={label} type="button" onClick={() => applyFocus(focus)} aria-label={`Filter support tickets: ${label}`} className="rounded-2xl border border-border bg-card p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/60 hover:bg-primary/5 active:scale-[.98]">
+                      {contents}
+                    </button>
+                  ) : (
+                    <div key={label} className="rounded-2xl border border-border bg-card p-3 text-left">
+                      {contents}
+                    </div>
+                  );
+                })}
             </div>
              <div className="shrink-0 rounded-2xl border border-border bg-card p-3">
                <div className="flex items-center justify-between gap-3">
