@@ -28,7 +28,12 @@ export default function Login({ adminOnly = false }: { adminOnly?: boolean }) {
       await signInWithPassword(email, password);
     }
   };
-  const showOAuthHelp = Boolean(authError && /(google|oauth|redirect|provider|supabase)/i.test(authError));
+  const showCallbackBrowserHelp = Boolean(authError && /(callback|code verifier|sign-in verifier|pkce|flow_state|sign-in state)/i.test(authError));
+  const showOAuthHelp = Boolean(
+    authError &&
+    !showCallbackBrowserHelp &&
+    /(could not reach supabase|not configured for this app|oauth configuration|not allowed by supabase|not fully configured in supabase|publishable key configured)/i.test(authError),
+  );
   const isEmbeddedPreview = window.self !== window.top;
   const appRedirectUrl = new URL(import.meta.env.BASE_URL || "/", window.location.origin).toString();
 
@@ -93,6 +98,12 @@ export default function Login({ adminOnly = false }: { adminOnly?: boolean }) {
           {authError && (
              <div role="alert" aria-live="assertive" className="mt-5 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive p-4 text-sm font-medium">
               {authError}
+                {showCallbackBrowserHelp && (
+                  <div className="mt-3 space-y-2 text-xs opacity-90">
+                    <p>This is a browser-session error, not a restriction on ordinary Gmail accounts. If this page opened inside another app, open the URL below directly in Chrome or your full browser, then start a fresh sign-in and stay in that browser.</p>
+                    <code className="block break-all rounded-lg bg-black/20 p-2 select-all">{appRedirectUrl}</code>
+                  </div>
+                )}
                {showOAuthHelp && (
                  <div className="mt-3 space-y-2 text-xs opacity-90">
                    <p>Enable Google in Supabase Authentication → Providers and enter the Google OAuth client credentials there. In Google Cloud, register the callback URL shown in the Supabase Google provider settings.</p>

@@ -77,7 +77,7 @@ function formatAuthError(error: unknown) {
     return "Google returned to Fleetvix, but this browser's sign-in state did not match. Allow the exact app URL in Supabase Authentication → URL Configuration → Redirect URLs, then retry in the same browser.";
   }
   if (normalized.includes("code verifier") || normalized.includes("pkce")) {
-    return "Fleetvix could not verify Google's sign-in callback. Retry in the same browser and tab, and make sure the app returns to the same URL where sign-in started.";
+    return "Google returned to Fleetvix, but this browser no longer has the sign-in verifier. If you opened Fleetvix inside another app, open it directly in Chrome or your full browser, start a fresh sign-in, and finish in that same browser.";
   }
   if (normalized.includes("timed out")) {
     return "Fleetvix could not finish checking your session. Check the Supabase URL and network connection, then try again.";
