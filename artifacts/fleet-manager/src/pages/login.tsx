@@ -1,7 +1,6 @@
 import { useAuth } from "@/lib/auth";
-import { FormEvent, useState } from "react";
 import { Link } from "wouter";
-import { LogIn, ShieldCheck, Mail, LockKeyhole } from "lucide-react";
+import { LogIn, ShieldCheck } from "lucide-react";
 import fleetXLogo from "@assets/FleetX_1785676635299.jpeg";
 
 function GoogleMark() {
@@ -16,18 +15,7 @@ function GoogleMark() {
 }
 
 export default function Login({ adminOnly = false }: { adminOnly?: boolean }) {
-  const { signInWithGoogle, signInWithPassword, signUpWithPassword, signingIn, authError, authNotice } = useAuth();
-  const [mode, setMode] = useState<"password" | "create">("password");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const submitPassword = async (event: FormEvent) => {
-    event.preventDefault();
-    if (mode === "create") {
-      await signUpWithPassword(email, password);
-    } else {
-      await signInWithPassword(email, password);
-    }
-  };
+  const { signInWithGoogle, signingIn, authError } = useAuth();
   const showCallbackBrowserHelp = Boolean(authError && /(callback|code verifier|sign-in verifier|pkce|flow_state|sign-in state)/i.test(authError));
   const showSupabaseConfigHelp = Boolean(authError && /missing a valid supabase url or publishable key/i.test(authError));
   const showOAuthHelp = Boolean(
@@ -56,27 +44,17 @@ export default function Login({ adminOnly = false }: { adminOnly?: boolean }) {
               <ShieldCheck size={24} />
             </div>
             <div>
-               <h2 className="font-bold text-foreground text-lg">{adminOnly ? "Admin sign in" : mode === "create" ? "Create your Fleetvix account" : "Sign in to continue"}</h2>
-             <p className="text-sm text-muted-foreground mt-0.5 leading-snug">{adminOnly ? "Authorized administrators can manage Fleetvix support and accounts." : "Keep your Fleetvix workspace synced with Google or email and password."}</p>
+              <h2 className="font-bold text-foreground text-lg">{adminOnly ? "Admin sign in" : "Sign in to continue"}</h2>
+              <p className="text-sm text-muted-foreground mt-0.5 leading-snug">
+                {adminOnly
+                  ? "Authorized administrators can manage Fleetvix support and accounts."
+                  : "Sign in with your Google account to open your Fleetvix workspace."}
+              </p>
             </div>
           </div>
 
-          <form onSubmit={(event) => void submitPassword(event)} className="space-y-3">
-            <label className="fm-login-field"><Mail size={16} /> <input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" autoComplete="email" /></label>
-            <label className="fm-login-field"><LockKeyhole size={16} /> <input type="password" required minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password (at least 6 characters)" autoComplete={mode === "create" ? "new-password" : "current-password"} /></label>
-            <button type="submit" disabled={signingIn} className="w-full rounded-2xl border border-primary/60 bg-primary/10 p-4 font-bold text-primary transition hover:bg-primary/20 disabled:opacity-60">
-              {signingIn ? "Please wait..." : mode === "create" ? "Create account with email" : "Sign in with email"}
-            </button>
-          </form>
-
-          {!adminOnly && <button type="button" onClick={() => setMode((current) => current === "password" ? "create" : "password")} className="mt-3 w-full text-sm font-bold text-muted-foreground underline-offset-4 hover:text-primary hover:underline">
-             {mode === "create" ? "Already have an account? Sign in" : "New to Fleetvix? Create an account"}
-          </button>}
-
-          <div className="my-5 flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60"><span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" /></div>
-
           {isEmbeddedPreview && (
-            <p className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs leading-relaxed text-muted-foreground">
+            <p className="mb-4 mt-2 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs leading-relaxed text-muted-foreground">
               Google sign-in can lose its browser state inside an embedded preview.{" "}
               <a href={window.location.href} target="_blank" rel="noopener noreferrer" className="font-bold text-primary underline underline-offset-2">
                 Open FleetX in a new tab
@@ -96,7 +74,6 @@ export default function Login({ adminOnly = false }: { adminOnly?: boolean }) {
             <LogIn size={18} className="ml-1" />
           </button>
 
-           {authNotice && <div role="status" className="mt-5 rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-4 text-sm font-medium text-emerald-300">{authNotice}</div>}
           {authError && (
              <div role="alert" aria-live="assertive" className="mt-5 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive p-4 text-sm font-medium">
               {authError}

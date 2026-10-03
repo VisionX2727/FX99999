@@ -7,11 +7,8 @@ type AuthContextValue = {
   session: Session | null;
   loading: boolean;
   authError: string | null;
-  authNotice: string | null;
   signingIn: boolean;
   signInWithGoogle: () => Promise<void>;
-  signInWithPassword: (email: string, password: string) => Promise<void>;
-  signUpWithPassword: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<{ error: Error | null }>;
 };
 
@@ -139,7 +136,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [signingIn, setSigningIn] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [authNotice, setAuthNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (!supabaseConfigured) {
@@ -154,7 +150,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!mounted) return;
       setSession(nextSession);
       setSigningIn(false);
-       if (nextSession) setAuthNotice(null);
       if (event === "SIGNED_OUT") setAuthError(null);
     });
 
@@ -206,7 +201,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     loading,
     authError,
-    authNotice,
     signingIn,
     signInWithGoogle: async () => {
       if (!supabaseConfigured) {
@@ -214,7 +208,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       setAuthError(null);
-      setAuthNotice(null);
       setSigningIn(true);
       clearOAuthCallbackParams();
       clearPendingPkceVerifiers();
@@ -235,59 +228,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSigningIn(false);
       }
     },
-    signInWithPassword: async (email: string, password: string) => {
-      if (!supabaseConfigured) {
-        setAuthError(SUPABASE_CONFIG_ERROR);
-        return;
-      }
-      setAuthError(null);
-      setAuthNotice(null);
-      setSigningIn(true);
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-        if (error) throw error;
-        setSession(data.session);
-      } catch (error) {
-        setAuthError(formatAuthError(error));
-      } finally {
-        setSigningIn(false);
-      }
-    },
-    signUpWithPassword: async (email: string, password: string) => {
-      if (!supabaseConfigured) {
-        setAuthError(SUPABASE_CONFIG_ERROR);
-        return;
-      }
-      setAuthError(null);
-      setAuthNotice(null);
-      setSigningIn(true);
-      try {
-        const { data, error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
-          options: { emailRedirectTo: getRedirectUrl() },
-        });
-        if (error) throw error;
-        if (data.session) {
-          setSession(data.session);
-        } else {
-          setAuthNotice("Account created. Check your email to confirm the account, then sign in.");
-        }
-      } catch (error) {
-        setAuthError(formatAuthError(error));
-      } finally {
-        setSigningIn(false);
-      }
-    },
     signOut: async () => {
       // A local logout clears this browser's Supabase session and PKCE
       // verifier without revoking other sessions for the same user.
       const { error } = await supabase.auth.signOut({ scope: "local" });
       clearPendingPkceVerifiers();
-      setAuthNotice(null);
       return { error: error ? new Error(error.message) : null };
     },
-  }), [session, loading, authError, authNotice, signingIn]);
+  }), [session, loading, authError, signingIn]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
