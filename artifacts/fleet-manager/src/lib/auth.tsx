@@ -18,6 +18,8 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 const MINIMUM_SPLASH_MS = 1200;
 const AUTH_BOOTSTRAP_TIMEOUT_MS = 6000;
+const SUPABASE_CONFIG_ERROR =
+  "This build is missing a valid Supabase URL or publishable key.";
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
   let timeoutId: number | undefined;
@@ -141,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!supabaseConfigured) {
-      setAuthError("Supabase authentication is not configured for this app.");
+      setAuthError(SUPABASE_CONFIG_ERROR);
       setLoading(false);
       return;
     }
@@ -208,7 +210,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signingIn,
     signInWithGoogle: async () => {
       if (!supabaseConfigured) {
-        setAuthError("Supabase authentication is not configured for this app.");
+        setAuthError(SUPABASE_CONFIG_ERROR);
         return;
       }
       setAuthError(null);
@@ -235,7 +237,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     signInWithPassword: async (email: string, password: string) => {
       if (!supabaseConfigured) {
-        setAuthError("Supabase authentication is not configured for this app.");
+        setAuthError(SUPABASE_CONFIG_ERROR);
         return;
       }
       setAuthError(null);
@@ -253,7 +255,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     signUpWithPassword: async (email: string, password: string) => {
       if (!supabaseConfigured) {
-        setAuthError("Supabase authentication is not configured for this app.");
+        setAuthError(SUPABASE_CONFIG_ERROR);
         return;
       }
       setAuthError(null);

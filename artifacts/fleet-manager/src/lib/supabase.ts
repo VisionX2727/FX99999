@@ -10,22 +10,36 @@ const injectedKey =
   typeof __SUPABASE_PUBLISHABLE_KEY__ === "string"
     ? __SUPABASE_PUBLISHABLE_KEY__
     : "";
-const supabaseUrl =
+const configuredSupabaseUrl = (
   env.VITE_SUPABASE_URL ||
   env.SUPABASE_URL ||
-  injectedUrl ||
-  "https://placeholder.supabase.co";
-const supabasePublishableKey =
+  injectedUrl
+).trim();
+const hasValidSupabaseUrl = (() => {
+  try {
+    const url = new URL(configuredSupabaseUrl);
+    return (url.protocol === "https:" || url.protocol === "http:") && Boolean(url.hostname);
+  } catch {
+    return false;
+  }
+})();
+const supabaseUrl = hasValidSupabaseUrl
+  ? configuredSupabaseUrl
+  : "https://placeholder.supabase.co";
+const configuredPublishableKey = (
   env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   env.SUPABASE_PUBLISHABLE_KEY ||
-  injectedKey ||
-  "placeholder-publishable-key";
+  injectedKey
+).trim();
+const supabasePublishableKey =
+  configuredPublishableKey || "placeholder-publishable-key";
 
 export const supabaseAuthStorageKey = "fleet-manager-auth";
 
 export const supabaseConfigured =
-  supabaseUrl !== "https://placeholder.supabase.co" &&
-  supabasePublishableKey !== "placeholder-publishable-key";
+  hasValidSupabaseUrl &&
+  Boolean(configuredPublishableKey) &&
+  configuredPublishableKey !== "placeholder-publishable-key";
 
 // Use PKCE explicitly instead of relying on the SDK's implicit-flow default.
 // The verifier is kept by Supabase Auth in browser storage and is consumed once

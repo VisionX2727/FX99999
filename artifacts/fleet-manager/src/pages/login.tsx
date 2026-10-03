@@ -29,10 +29,12 @@ export default function Login({ adminOnly = false }: { adminOnly?: boolean }) {
     }
   };
   const showCallbackBrowserHelp = Boolean(authError && /(callback|code verifier|sign-in verifier|pkce|flow_state|sign-in state)/i.test(authError));
+  const showSupabaseConfigHelp = Boolean(authError && /missing a valid supabase url or publishable key/i.test(authError));
   const showOAuthHelp = Boolean(
     authError &&
     !showCallbackBrowserHelp &&
-    /(could not reach supabase|not configured for this app|oauth configuration|not allowed by supabase|not fully configured in supabase|publishable key configured)/i.test(authError),
+    !showSupabaseConfigHelp &&
+    /(could not reach supabase|oauth configuration|not allowed by supabase|not fully configured in supabase|publishable key configured)/i.test(authError),
   );
   const isEmbeddedPreview = window.self !== window.top;
   const appRedirectUrl = new URL(import.meta.env.BASE_URL || "/", window.location.origin).toString();
@@ -98,6 +100,13 @@ export default function Login({ adminOnly = false }: { adminOnly?: boolean }) {
           {authError && (
              <div role="alert" aria-live="assertive" className="mt-5 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive p-4 text-sm font-medium">
               {authError}
+                {showSupabaseConfigHelp && (
+                  <div className="mt-3 space-y-2 text-xs opacity-90">
+                    <p>For the Vercel deployment, set these variables in the Production environment, then redeploy:</p>
+                    <code className="block rounded-lg bg-black/20 p-2">VITE_SUPABASE_URL</code>
+                    <code className="block rounded-lg bg-black/20 p-2">VITE_SUPABASE_PUBLISHABLE_KEY</code>
+                  </div>
+                )}
                 {showCallbackBrowserHelp && (
                   <div className="mt-3 space-y-2 text-xs opacity-90">
                     <p>This is a browser-session error, not a restriction on ordinary Gmail accounts. If this page opened inside another app, open the URL below directly in Chrome or your full browser, then start a fresh sign-in and stay in that browser.</p>
