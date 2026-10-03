@@ -8,8 +8,9 @@ Fleet Manager is a mobile-first operations app for small fleet owners to track v
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` or `SUPABASE_DB_URL` — Postgres connection string for the backend workspace database
+- `pnpm --filter @workspace/db run push` — push DB schema changes to the development database
+- Runtime database: `SUPABASE_DB_URL` is preferred; `DATABASE_URL` is the fallback
+- To provision the Supabase schema, run the Drizzle push with `DATABASE_URL="$SUPABASE_DB_URL"`; keep the connection string in Replit Secrets
 
 ## Stack
 
@@ -30,7 +31,8 @@ Fleet Manager is a mobile-first operations app for small fleet owners to track v
 ## Architecture decisions
 
 - The first milestone is local-first so the app remains usable offline and keeps records across reloads.
-- Supabase is used for Google OAuth, logout, and business-logo storage; the authenticated API uses the Supabase service role only on the server to upload logo bytes to the private server boundary, while the workspace record stores the resulting public asset URL.
+- Supabase provides Google OAuth, the PostgreSQL workspace database, and business-logo storage. The browser uses only the public Supabase URL and publishable/anon key; the API keeps the database URL, service-role key, and Gemini key server-side.
+- The API in this Replit project enforces owner/driver data scopes. Vercel sends `/api/*` to this project's published API; do not configure the browser to call a separate API origin.
 - Khata charges are linked to work logs and vehicles so receipts and payment QR amounts are derived from recorded work.
 
 ## Product

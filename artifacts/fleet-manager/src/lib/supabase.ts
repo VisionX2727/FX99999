@@ -28,7 +28,9 @@ const supabaseUrl = hasValidSupabaseUrl
   : "https://placeholder.supabase.co";
 const configuredPublishableKey = (
   env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  env.VITE_SUPABASE_ANON_KEY ||
   env.SUPABASE_PUBLISHABLE_KEY ||
+  env.SUPABASE_ANON_KEY ||
   injectedKey
 ).trim();
 const supabasePublishableKey =

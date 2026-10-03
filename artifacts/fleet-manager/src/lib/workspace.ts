@@ -70,14 +70,8 @@ function workspaceUrl(path = "") {
   return `${base}api/workspace${path}`;
 }
 
-const configuredApiOrigin = (import.meta.env.VITE_API_ORIGIN || "").replace(/\/$/, "");
-
 function workspaceUrls(path = "") {
-  const localUrl = workspaceUrl(path);
-  const externalUrl = configuredApiOrigin
-    ? `${configuredApiOrigin}/api/workspace${path}`
-    : "";
-  return externalUrl && externalUrl !== localUrl ? [localUrl, externalUrl] : [localUrl];
+  return [workspaceUrl(path)];
 }
 
 async function request<T>(path: string, token: string, init?: RequestInit): Promise<T> {
@@ -106,8 +100,6 @@ async function request<T>(path: string, token: string, init?: RequestInit): Prom
         serverMessage || `Workspace request failed (${response.status}${response.statusText ? ` ${response.statusText}` : ""})`,
       );
 
-      // A static host may answer POST /api with 404/405 instead of forwarding
-      // it. Retry the same authenticated request against the API artifact.
       if (response.status !== 404 && response.status !== 405) throw lastError;
     } catch (error) {
       if (error instanceof Error) {
@@ -259,8 +251,7 @@ export type FleetuMessage = { role: "user" | "model"; text: string };
 export async function askFleetu(token: string, message: string, history: FleetuMessage[]) {
   const base = (import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
   const localUrl = `${base}api/fleetu/chat`;
-  const configuredOrigin = (import.meta.env.VITE_API_ORIGIN || "").replace(/\/$/, "");
-  const urls = configuredOrigin ? [localUrl, `${configuredOrigin}/api/fleetu/chat`] : [localUrl];
+  const urls = [localUrl];
   let lastError: Error | null = null;
   for (const url of urls) {
     try {
