@@ -29,6 +29,7 @@ export default function Login({ adminOnly = false }: { adminOnly?: boolean }) {
     }
   };
   const showOAuthHelp = Boolean(authError && /(google|oauth|redirect|provider|supabase)/i.test(authError));
+  const isEmbeddedPreview = window.self !== window.top;
   const appRedirectUrl = new URL(import.meta.env.BASE_URL || "/", window.location.origin).toString();
 
   return (
@@ -66,6 +67,16 @@ export default function Login({ adminOnly = false }: { adminOnly?: boolean }) {
           </button>}
 
           <div className="my-5 flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60"><span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" /></div>
+
+          {isEmbeddedPreview && (
+            <p className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs leading-relaxed text-muted-foreground">
+              Google sign-in can lose its browser state inside an embedded preview.{" "}
+              <a href={window.location.href} target="_blank" rel="noopener noreferrer" className="font-bold text-primary underline underline-offset-2">
+                Open FleetX in a new tab
+              </a>{" "}
+              and sign in there.
+            </p>
+          )}
 
           <button
             type="button"
