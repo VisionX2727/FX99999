@@ -45,3 +45,5 @@ export const supportTickets = pgTable("support_tickets", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   resolvedAt: timestamp("resolved_at", { withTimezone: true }),
 });
+
+export * from "./site-legal-settings";

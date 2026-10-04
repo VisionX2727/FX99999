@@ -101,6 +101,10 @@ export default function Login({ adminOnly = false }: { adminOnly?: boolean }) {
           )}
 
             <p className="text-[11px] text-muted-foreground text-center mt-6">{adminOnly ? <Link href="/" className="underline underline-offset-4">Back to Fleetvix sign in</Link> : <>Only your signed-in account can access its fleet workspace. <Link href="/admin" className="ml-1 underline underline-offset-4">Admin sign in</Link></>}</p>
+            <nav aria-label="Legal documents" className="mt-4 flex items-center justify-center gap-4 text-xs font-semibold text-muted-foreground">
+              <Link href="/terms-and-conditions" className="underline underline-offset-4">Terms &amp; Conditions</Link>
+              <Link href="/privacy-policy" className="underline underline-offset-4">Privacy Policy</Link>
+            </nav>
         </div>
 
         <p className="text-xs text-muted-foreground/60 text-center font-bold mt-4 uppercase tracking-[0.15em]">

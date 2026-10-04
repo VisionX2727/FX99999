@@ -1,4 +1,5 @@
 import type { AppState, Driver } from "@/lib/store";
+import type { SiteContent, SiteContentInput } from "@workspace/api-client-react";
 
 export type DriverDocument = {
   id: string;
@@ -70,19 +71,30 @@ function workspaceUrl(path = "") {
   return `${base}api/workspace${path}`;
 }
 
+function apiUrl(path = "") {
+  const base = (import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
+  return `${base}api${path}`;
+}
+
 function workspaceUrls(path = "") {
   return [workspaceUrl(path)];
 }
 
-async function request<T>(path: string, token: string, init?: RequestInit): Promise<T> {
+async function request<T>(
+  path: string,
+  token?: string,
+  init?: RequestInit,
+  scope: "workspace" | "api" = "workspace",
+): Promise<T> {
   let lastError: Error | null = null;
-  for (const url of workspaceUrls(path)) {
+  const urls = scope === "api" ? [apiUrl(path)] : workspaceUrls(path);
+  for (const url of urls) {
     try {
       const response = await fetch(url, {
         ...init,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
           ...(init?.headers || {}),
         },
       });
@@ -228,7 +240,7 @@ export function createSupportTicket(token: string, payload: {
 }
 
 export function getAdminStats(token: string) {
-  return request<{ stats: AdminStats }>("/admin", token);
+  return request<{ stats: AdminStats }>("/admin", token, undefined, "api");
 }
 
 export function getAdminTickets(token: string, filters: { search?: string; status?: string; priority?: string; category?: string } = {}) {
@@ -236,14 +248,29 @@ export function getAdminTickets(token: string, filters: { search?: string; statu
   Object.entries(filters).forEach(([key, value]) => {
     if (value) params.set(key, value);
   });
-  return request<{ tickets: SupportTicket[] }>(`/admin/tickets${params.toString() ? `?${params.toString()}` : ""}`, token);
+  return request<{ tickets: SupportTicket[] }>(`/admin/tickets${params.toString() ? `?${params.toString()}` : ""}`, token, undefined, "api");
 }
 
 export function updateAdminTicket(token: string, ticketId: string, payload: { status?: SupportTicket["status"]; priority?: SupportTicket["priority"]; adminReply?: string }) {
   return request<{ ticket: SupportTicket }>(`/admin/tickets/${encodeURIComponent(ticketId)}`, token, {
     method: "PATCH",
     body: JSON.stringify(payload),
-  });
+  }, "api");
+}
+
+export function getPublicSiteContent() {
+  return request<{ content: SiteContent }>("/public/legal", undefined, undefined, "api");
+}
+
+export function getAdminSiteContent(token: string) {
+  return request<{ content: SiteContent }>("/admin/site-content", token, undefined, "api");
+}
+
+export function updateAdminSiteContent(token: string, payload: SiteContentInput) {
+  return request<{ content: SiteContent }>("/admin/site-content", token, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  }, "api");
 }
 
 export type FleetuMessage = { role: "user" | "model"; text: string };

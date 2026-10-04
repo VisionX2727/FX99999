@@ -1,8 +1,14 @@
 import { Router, type IRouter } from "express";
 import { and, count, desc, eq, ilike, or } from "drizzle-orm";
+import {
+  GetAdminSiteContentResponse,
+  UpdateAdminSiteContentBody,
+  UpdateAdminSiteContentResponse,
+} from "@workspace/api-zod";
 import { db, fleetMembers, fleetWorkspaces, supportTickets } from "@workspace/db";
 import { requireAuth } from "../lib/auth";
 import { requireAdmin } from "../lib/admin";
+import { getSiteLegalContent, saveSiteLegalContent } from "../lib/site-legal-content";
 import { signedAttachmentUrl } from "./support";
 
 const router: IRouter = Router();
@@ -28,6 +34,35 @@ router.get("/", async (_req, res) => {
       totalTickets: Number(tickets.value),
     },
   });
+});
+
+router.get("/site-content", async (_req, res): Promise<void> => {
+  const response = GetAdminSiteContentResponse.parse({ content: await getSiteLegalContent() });
+  res.json(response);
+});
+
+router.put("/site-content", async (req, res): Promise<void> => {
+  const parsed = UpdateAdminSiteContentBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  for (const [label, value] of [
+    ["Support email", parsed.data.supportEmail],
+    ["Privacy email", parsed.data.privacyEmail],
+  ] as const) {
+    if (value && !emailPattern.test(value)) {
+      res.status(400).json({ error: `${label} must be a valid email address or left blank.` });
+      return;
+    }
+  }
+
+  const response = UpdateAdminSiteContentResponse.parse({
+    content: await saveSiteLegalContent(parsed.data),
+  });
+  res.json(response);
 });
 
 router.get("/tickets", async (req, res) => {

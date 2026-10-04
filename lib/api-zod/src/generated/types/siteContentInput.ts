@@ -5,29 +5,6 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-export interface HealthStatus {
-  status: string;
-}
-
-export interface SiteContent {
-  /** @maxLength 60000 */
-  termsContent: string;
-  /** @maxLength 60000 */
-  privacyContent: string;
-  /** @maxLength 200 */
-  legalName: string;
-  /** @maxLength 1000 */
-  businessAddress: string;
-  /** @maxLength 320 */
-  supportEmail: string;
-  /** @maxLength 320 */
-  privacyEmail: string;
-  /** @maxLength 80 */
-  supportPhone: string;
-  termsUpdatedAt: string;
-  privacyUpdatedAt: string;
-  updatedAt: string;
-}
 
 export interface SiteContentInput {
   /**
@@ -51,8 +28,3 @@ export interface SiteContentInput {
   /** @maxLength 80 */
   supportPhone: string;
 }
-
-export interface SiteContentResponse {
-  content: SiteContent;
-}
-

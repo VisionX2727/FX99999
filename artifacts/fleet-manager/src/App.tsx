@@ -29,6 +29,8 @@ import Maintenance from '@/pages/maintenance';
 import DriverPayments from '@/pages/driver-payments';
 import Support from '@/pages/support';
 import AdminDashboard from '@/pages/admin';
+import TermsAndConditions from '@/pages/terms-and-conditions';
+import PrivacyPolicy from '@/pages/privacy-policy';
 import Fleetu from '@/pages/fleetu';
 import { isAdminEmail } from '@/lib/admin';
 import splashLogo from '@assets/FleetX_1785676635299.jpeg';
@@ -213,6 +215,10 @@ function AuthenticatedShell() {
   const [workspace, setWorkspace] = useState<WorkspaceResponse | null>(null);
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
   const [workspaceError, setWorkspaceError] = useState('');
+
+  const publicPath = window.location.pathname.replace(/\/$/, '') || '/';
+  if (publicPath === '/terms-and-conditions') return <TermsAndConditions />;
+  if (publicPath === '/privacy-policy') return <PrivacyPolicy />;
 
   useEffect(() => {
     if (!user || !session || isAdminEmail(user.email)) {

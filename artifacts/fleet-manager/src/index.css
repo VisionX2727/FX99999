@@ -361,6 +361,147 @@
   }
 }
 
+.fm-admin-header {
+  @apply flex shrink-0 items-center justify-between gap-3 border-b border-border bg-[#101b2a] px-4 py-3 sm:px-6 sm:py-4;
+}
+.fm-admin-content {
+  @apply min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-3 py-4 sm:px-5 sm:py-5;
+}
+.fm-admin-tabs {
+  @apply mb-4 grid grid-cols-2 gap-2 rounded-2xl border border-border bg-card p-1.5;
+}
+.fm-admin-tabs button {
+  @apply flex min-w-0 items-center justify-center gap-2 rounded-xl px-2 py-3 text-xs font-black text-muted-foreground transition sm:text-sm;
+}
+.fm-admin-tabs button[aria-selected="true"] {
+  @apply bg-primary text-primary-foreground shadow-sm;
+}
+.fm-admin-stat {
+  @apply min-w-0 rounded-2xl border border-border bg-card p-3 transition hover:border-primary/50;
+}
+.fm-admin-stat strong { @apply text-2xl leading-none; }
+.fm-admin-tool {
+  @apply flex min-w-0 justify-center whitespace-normal text-center;
+}
+.fm-admin-alert {
+  @apply mb-4 flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive;
+}
+.fm-admin-alert span { @apply min-w-0 flex-1 break-words; }
+.fm-admin-alert button { @apply rounded-lg border border-destructive/30 px-3 py-1.5 text-xs font-bold; }
+.fm-admin-workspace {
+  @apply min-w-0 overflow-hidden rounded-2xl border border-border bg-card;
+}
+.fm-admin-list, .fm-admin-detail { @apply min-w-0; }
+.fm-admin-detail { @apply border-t border-border p-4; }
+.fm-admin-filters {
+  @apply grid grid-cols-2 gap-2 border-b border-border p-3 sm:grid-cols-3;
+}
+.fm-admin-filters input, .fm-admin-filters select {
+  @apply min-w-0 w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs font-bold text-foreground outline-none focus:border-primary;
+}
+.fm-admin-filters input { @apply pl-9; }
+.fm-admin-skeleton {
+  @apply h-[68px] animate-pulse rounded-xl border border-border bg-muted/70;
+}
+.fm-site-settings {
+  @apply min-w-0 overflow-hidden rounded-2xl border border-border bg-card;
+}
+.fm-site-intro {
+  @apply flex min-w-0 items-start gap-3 border-b border-border p-4 sm:p-5;
+}
+.fm-site-icon {
+  @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary;
+}
+.fm-legal-editor {
+  @apply min-h-72 resize-y font-mono text-xs leading-relaxed;
+}
+.fm-legal-page {
+  @apply min-h-[100dvh] overflow-x-hidden bg-[#0c1722] text-foreground;
+}
+.fm-legal-header {
+  @apply flex items-center justify-between gap-3 border-b border-border bg-[#101b2a] px-4 py-3 sm:px-8;
+}
+.fm-legal-brand {
+  @apply flex min-w-0 items-center gap-2.5 text-sm font-black tracking-wide;
+}
+.fm-legal-mark {
+  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground;
+}
+.fm-legal-brand-sub {
+  @apply block text-[8px] font-bold tracking-[0.16em] text-muted-foreground;
+}
+.fm-legal-back {
+  @apply inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-bold text-muted-foreground transition hover:text-primary;
+}
+.fm-legal-wrap {
+  @apply mx-auto w-full max-w-4xl px-4 py-9 sm:px-8 sm:py-14;
+}
+.fm-legal-kicker {
+  @apply flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary;
+}
+.fm-legal-wrap > h1 {
+  @apply mt-3 break-words text-3xl font-black tracking-tight sm:text-5xl;
+}
+.fm-legal-deck {
+  @apply mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base;
+}
+.fm-legal-paper {
+  @apply mt-8 min-w-0 rounded-2xl border border-border bg-card px-4 py-5 sm:mt-10 sm:px-8 sm:py-8;
+}
+.fm-legal-meta {
+  @apply mb-6 flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4 text-xs;
+}
+.fm-legal-meta span { @apply uppercase tracking-wider text-muted-foreground; }
+.fm-legal-meta strong { @apply text-foreground; }
+.fm-legal-prose {
+  @apply min-w-0 break-words text-sm leading-7 text-foreground/90 sm:text-[15px];
+  overflow-wrap: anywhere;
+}
+.fm-legal-prose > * + * { @apply mt-4; }
+.fm-legal-prose h1, .fm-legal-prose h2, .fm-legal-prose h3, .fm-legal-prose h4 {
+  @apply mt-7 break-words font-black leading-tight text-foreground;
+}
+.fm-legal-prose h1 { @apply text-2xl; }
+.fm-legal-prose h2 { @apply text-xl; }
+.fm-legal-prose h3 { @apply text-lg; }
+.fm-legal-prose h4 { @apply text-base; }
+.fm-legal-prose ul, .fm-legal-prose ol {
+  @apply ml-5 space-y-2 pl-2;
+}
+.fm-legal-prose ul { @apply list-disc; }
+.fm-legal-prose ol { @apply list-decimal; }
+.fm-legal-prose li { @apply pl-1; }
+.fm-legal-prose strong { @apply font-black text-foreground; }
+.fm-legal-prose a { @apply break-all; }
+.fm-legal-contact {
+  @apply mt-4 flex min-w-0 flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between;
+}
+.fm-legal-contact > div { @apply min-w-0; }
+.fm-legal-contact strong, .fm-legal-contact span { @apply block; }
+.fm-legal-contact span { @apply mt-1 text-xs text-muted-foreground; }
+.fm-legal-contact a { @apply inline-flex min-w-0 items-center gap-1 break-all text-sm font-bold text-primary; }
+.fm-legal-footer {
+  @apply flex flex-col items-center justify-between gap-3 border-t border-border px-4 py-5 text-center text-[11px] text-muted-foreground sm:flex-row sm:px-8 sm:text-left;
+}
+.fm-legal-footer nav { @apply flex gap-4 font-semibold; }
+.fm-legal-loading { @apply mt-8 space-y-4 rounded-2xl border border-border bg-card p-5 sm:p-8; }
+.fm-legal-loading div { @apply h-4 animate-pulse rounded bg-muted; }
+.fm-legal-loading div:nth-child(1) { @apply w-1/3; }
+.fm-legal-loading div:nth-child(2) { @apply h-8 w-2/3; }
+.fm-legal-loading div:nth-child(3) { @apply w-full; }
+.fm-legal-loading div:nth-child(4) { @apply w-4/5; }
+.fm-legal-message { @apply mt-8 rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground; }
+.fm-legal-message button { @apply mt-3 rounded-lg bg-primary px-4 py-2 text-xs font-black text-primary-foreground; }
+
+@media (min-width: 640px) {
+  .fm-admin-workspace { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(280px, .95fr); }
+  .fm-admin-detail { @apply border-l border-t-0; }
+  .fm-admin-list.fm-mobile-detail-open { display: block; }
+}
+@media (max-width: 639px) {
+  .fm-admin-list.fm-mobile-detail-open { display: none; }
+}
+
 /* Phones can request "Desktop site", which makes the viewport appear wide
    even though the device is still a touch-first mobile device. Keep the
    compact shell in that case instead of relying on viewport width alone. */
