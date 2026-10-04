@@ -31,6 +31,7 @@ export default function AdminDashboard() {
   const [error, setError] = useState("");
   const [activeFocus, setActiveFocus] = useState("All support");
   const [section, setSection] = useState<"support" | "site">("support");
+  const [sitePanel, setSitePanel] = useState<"contacts" | "terms" | "privacy">("contacts");
   const [mobileDetail, setMobileDetail] = useState(false);
   const [siteForm, setSiteForm] = useState<SiteContentInput>(blankSiteContent);
   const [siteReady, setSiteReady] = useState(false);
@@ -157,16 +158,16 @@ export default function AdminDashboard() {
         </div>
         {error && <div className="fm-admin-alert" role="alert"><span>{error}</span><button type="button" onClick={() => void load()}>Retry</button></div>}
         {section === "support" ? (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="fm-admin-support">
+            <div className="grid shrink-0 grid-cols-4 gap-1.5">
               {statCards.map(({ label, value, Icon, focus }) => {
-                const content = <><div className="flex items-center justify-between"><Icon size={16} className="text-primary" /><span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{label}</span></div><strong className="mt-2 block text-2xl font-black">{value}</strong></>;
+                const content = <><div className="flex min-w-0 items-center justify-between gap-1"><Icon size={14} className="shrink-0 text-primary" /><span className="truncate text-[9px] font-bold uppercase tracking-wide text-muted-foreground">{label}</span></div><strong className="mt-1 block text-lg font-black leading-none">{value}</strong></>;
                 return focus ? <button key={label} type="button" onClick={() => applyFocus(focus)} className="fm-admin-stat text-left">{content}</button> : <div key={label} className="fm-admin-stat">{content}</div>;
               })}
             </div>
-            <section className="rounded-2xl border border-border bg-card p-3">
-              <div className="flex items-center justify-between gap-3"><div className="min-w-0"><p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Support desk</p><h2 className="mt-1 text-sm font-black">Find and resolve field issues</h2></div><button type="button" onClick={() => void load()} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border text-muted-foreground" aria-label="Refresh support data"><RefreshCw size={16} /></button></div>
-              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <section className="shrink-0 rounded-2xl border border-border bg-card p-2">
+              <div className="flex items-center justify-between gap-3"><div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary">Support desk</p><h2 className="mt-0.5 text-xs font-black">Find and resolve field issues</h2></div><button type="button" onClick={() => void load()} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground" aria-label="Refresh support data"><RefreshCw size={14} /></button></div>
+              <div className="mt-2 grid grid-cols-3 gap-1.5">
                 <button type="button" onClick={() => applyFocus("All support")} className={`fm-admin-tool ${activeFocus === "All support" ? "is-active" : ""}`}><LifeBuoy size={14} />All support</button>
                 <button type="button" onClick={() => applyFocus("Open support")} className={`fm-admin-tool ${activeFocus === "Open support" ? "is-active" : ""}`}><MessageSquare size={14} />Open problems</button>
                 <button type="button" onClick={() => applyFocus("Urgent problems")} className={`fm-admin-tool ${activeFocus === "Urgent problems" ? "is-active" : ""}`}><AlertTriangle size={14} />Urgent</button>
@@ -175,7 +176,7 @@ export default function AdminDashboard() {
                 <button type="button" onClick={() => applyFocus("Resolved history")} className={`fm-admin-tool ${activeFocus === "Resolved history" ? "is-active" : ""}`}><CheckCircle2 size={14} />Resolved</button>
               </div>
             </section>
-            <section className="fm-admin-workspace">
+            <section className="fm-admin-workspace fm-admin-ticket-workspace">
               <div className={`fm-admin-list ${mobileDetail ? "fm-mobile-detail-open" : ""}`}>
                 <div className="fm-admin-filters">
                   <div className="relative col-span-2 min-w-0 sm:col-span-1"><Search size={15} className="absolute left-3 top-3 text-muted-foreground" /><input aria-label="Search support tickets" value={search} onChange={(event) => setSearch(event.target.value)} onKeyDown={(event) => event.key === "Enter" && void load()} placeholder="Search tickets or email" /></div>
@@ -184,7 +185,7 @@ export default function AdminDashboard() {
                   <select aria-label="Filter ticket type" value={category} onChange={(event) => applyCategory(event.target.value)} className="col-span-2 sm:col-span-1"><option value="">All problem types</option>{supportCategories.map((item) => <option key={item}>{item}</option>)}</select>
                 </div>
                 <div className="flex items-center gap-2 border-b border-border px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground"><BarChart3 size={13} className="text-primary" />{activeFocus} · {tickets.length} result{tickets.length === 1 ? "" : "s"}</div>
-                <div className="space-y-2 p-3">
+                <div className="fm-admin-ticket-list">
                   {loading && !tickets.length ? <div className="space-y-2" aria-label="Loading tickets">{[0, 1, 2].map((item) => <div key={item} className="fm-admin-skeleton" />)}</div> : tickets.map((ticket) => (
                     <button type="button" key={ticket.id} onClick={() => { setSelected(ticket); setReply(ticket.adminReply || ""); setMobileDetail(true); }} className={`flex w-full min-w-0 items-center gap-3 rounded-xl border p-3 text-left transition ${selected?.id === ticket.id ? "border-primary bg-primary/10" : "border-border bg-background hover:border-primary/50"}`}>
                       <div className="min-w-0 flex-1"><div className="flex min-w-0 items-center gap-2"><strong className="truncate text-sm">{ticket.subject}</strong><span className={`fm-status ${ticket.priority === "High" ? "fm-status-maintenance" : "fm-status-idle"}`}>{ticket.priority}</span></div><p className="mt-1 truncate text-xs text-muted-foreground">{ticket.userName || ticket.userEmail} · {ticket.category}</p></div>
@@ -201,23 +202,41 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <section className="fm-site-settings">
-            <div className="fm-site-intro"><div className="fm-site-icon"><FileText size={19} /></div><div><p className="text-[10px] font-black uppercase tracking-widest text-primary">Public site settings</p><h2 className="mt-1 text-lg font-black">Legal documents & contact details</h2><p className="mt-1 text-sm text-muted-foreground">Updates publish on the public Terms and Privacy pages.</p></div></div>
-            {siteQuery.isLoading ? <div className="space-y-3 p-4" aria-label="Loading site settings">{[0, 1, 2, 3].map((item) => <div key={item} className="fm-admin-skeleton h-12" />)}</div> : siteQuery.isError ? <div className="p-4"><p className="text-sm text-destructive">Site settings could not be loaded.</p><button type="button" onClick={() => void siteQuery.refetch()} className="mt-3 rounded-xl border border-border px-4 py-2 text-sm font-bold">Retry</button></div> : (
-              <div className="space-y-5 p-4">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="fm-settings-label">Legal business name<input value={siteForm.legalName} onChange={(event) => updateSiteField("legalName", event.target.value)} /></label>
-                  <label className="fm-settings-label">Support phone<input type="tel" value={siteForm.supportPhone} onChange={(event) => updateSiteField("supportPhone", event.target.value)} /></label>
-                  <label className="fm-settings-label">Support email<input type="email" value={siteForm.supportEmail} onChange={(event) => updateSiteField("supportEmail", event.target.value)} /></label>
-                  <label className="fm-settings-label">Privacy email<input type="email" value={siteForm.privacyEmail} onChange={(event) => updateSiteField("privacyEmail", event.target.value)} /></label>
-                  <label className="fm-settings-label sm:col-span-2">Business address<textarea value={siteForm.businessAddress} onChange={(event) => updateSiteField("businessAddress", event.target.value)} /></label>
+            <div className="fm-site-intro"><div className="fm-site-icon"><FileText size={18} /></div><div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-widest text-primary">Public site settings</p><h2 className="mt-0.5 text-base font-black">Legal documents & contact details</h2><p className="mt-0.5 text-xs text-muted-foreground">Edit the published policies and contact information.</p></div></div>
+            <nav className="fm-site-links" aria-label="Direct public policy links">
+              <a href="/privacy-policy" target="_blank" rel="noreferrer"><ShieldCheck size={15} />Open Privacy Policy</a>
+              <a href="/terms-and-conditions" target="_blank" rel="noreferrer"><FileText size={15} />Open Terms & Conditions</a>
+            </nav>
+            <div className="fm-site-tabs" role="tablist" aria-label="Site settings">
+              <button type="button" role="tab" aria-selected={sitePanel === "contacts"} onClick={() => { setSitePanel("contacts"); setSiteNotice(""); }}>Contact details</button>
+              <button type="button" role="tab" aria-selected={sitePanel === "terms"} onClick={() => { setSitePanel("terms"); setSiteNotice(""); }}>Terms</button>
+              <button type="button" role="tab" aria-selected={sitePanel === "privacy"} onClick={() => { setSitePanel("privacy"); setSiteNotice(""); }}>Privacy</button>
+            </div>
+            {siteQuery.isLoading ? <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4" aria-label="Loading site settings">{[0, 1, 2, 3].map((item) => <div key={item} className="fm-admin-skeleton h-12" />)}</div> : siteQuery.isError ? <div className="min-h-0 flex-1 overflow-y-auto p-4"><p className="text-sm text-destructive">Site settings could not be loaded.</p><button type="button" onClick={() => void siteQuery.refetch()} className="mt-3 rounded-xl border border-border px-4 py-2 text-sm font-bold">Retry</button></div> : (
+              <>
+                <div className="fm-site-form">
+                  {sitePanel === "contacts" ? (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <label className="fm-settings-label">Legal business name<input value={siteForm.legalName} onChange={(event) => updateSiteField("legalName", event.target.value)} /></label>
+                      <label className="fm-settings-label">Support phone<input type="tel" value={siteForm.supportPhone} onChange={(event) => updateSiteField("supportPhone", event.target.value)} placeholder="+91 ..." /></label>
+                      <label className="fm-settings-label">Support email<input type="email" value={siteForm.supportEmail} onChange={(event) => updateSiteField("supportEmail", event.target.value)} placeholder="support@example.com" /></label>
+                      <label className="fm-settings-label">Privacy email<input type="email" value={siteForm.privacyEmail} onChange={(event) => updateSiteField("privacyEmail", event.target.value)} placeholder="privacy@example.com" /></label>
+                      <label className="fm-settings-label sm:col-span-2">Business address<textarea value={siteForm.businessAddress} onChange={(event) => updateSiteField("businessAddress", event.target.value)} placeholder="Business address shown in the public documents" /></label>
+                    </div>
+                  ) : sitePanel === "terms" ? (
+                    <label className="fm-settings-label fm-policy-editor-label">Terms & Conditions<textarea aria-label="Terms and Conditions policy editor" className="fm-legal-editor" value={siteForm.termsContent} onChange={(event) => updateSiteField("termsContent", event.target.value)} /></label>
+                  ) : (
+                    <label className="fm-settings-label fm-policy-editor-label">Privacy Policy<textarea aria-label="Privacy Policy editor" className="fm-legal-editor" value={siteForm.privacyContent} onChange={(event) => updateSiteField("privacyContent", event.target.value)} /></label>
+                  )}
                 </div>
-                <div className="grid gap-4 xl:grid-cols-2">
-                  <label className="fm-settings-label">Terms & Conditions · Markdown<textarea className="fm-legal-editor" value={siteForm.termsContent} onChange={(event) => updateSiteField("termsContent", event.target.value)} /></label>
-                  <label className="fm-settings-label">Privacy Policy · Markdown<textarea className="fm-legal-editor" value={siteForm.privacyContent} onChange={(event) => updateSiteField("privacyContent", event.target.value)} /></label>
+                <div className="fm-site-savebar">
+                  <div className="min-w-0 flex-1">
+                    {siteNotice && <p role="status" className={`text-xs font-semibold ${siteNotice.includes("saved") ? "text-emerald-300" : "text-destructive"}`}>{siteNotice}</p>}
+                    {(sitePanel === "terms" || sitePanel === "privacy") && <p className="text-[10px] leading-snug text-muted-foreground">Supports Markdown. Contact placeholders: {"{{legalName}}"}, {"{{businessAddress}}"}, {"{{supportEmail}}"}, {"{{privacyEmail}}"} and {"{{supportPhone}}"}.</p>}
+                  </div>
+                  <button type="button" disabled={updateSite.isPending || !siteForm.termsContent.trim() || !siteForm.privacyContent.trim()} onClick={saveSite} className="fm-primary-button w-full shrink-0 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">{updateSite.isPending ? "Saving…" : "Save changes"}</button>
                 </div>
-                {siteNotice && <p role="status" className={`rounded-xl p-3 text-sm ${siteNotice.includes("saved") ? "bg-emerald-500/10 text-emerald-300" : "bg-destructive/10 text-destructive"}`}>{siteNotice}</p>}
-                <div className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between"><p className="text-xs text-muted-foreground">Use placeholders such as {"{{legalName}}"} and {"{{supportEmail}}"} in policy copy.</p><button type="button" disabled={updateSite.isPending || !siteForm.termsContent.trim() || !siteForm.privacyContent.trim()} onClick={saveSite} className="fm-primary-button w-full sm:w-auto disabled:cursor-not-allowed disabled:opacity-50">{updateSite.isPending ? "Saving site settings…" : "Save site settings"}</button></div>
-              </div>
+              </>
             )}
           </section>
         )}

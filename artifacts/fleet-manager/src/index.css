@@ -365,55 +365,66 @@
   @apply flex shrink-0 items-center justify-between gap-3 border-b border-border bg-[#101b2a] px-4 py-3 sm:px-6 sm:py-4;
 }
 .fm-admin-content {
-  @apply min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-3 py-4 sm:px-5 sm:py-5;
+  @apply flex min-h-0 flex-1 flex-col overflow-hidden px-2.5 py-2.5 sm:px-5 sm:py-4;
 }
 .fm-admin-tabs {
-  @apply mb-4 grid grid-cols-2 gap-2 rounded-2xl border border-border bg-card p-1.5;
+  @apply mb-2 grid shrink-0 grid-cols-2 gap-1.5 rounded-xl border border-border bg-card p-1;
 }
 .fm-admin-tabs button {
-  @apply flex min-w-0 items-center justify-center gap-2 rounded-xl px-2 py-3 text-xs font-black text-muted-foreground transition sm:text-sm;
+  @apply flex min-h-10 min-w-0 items-center justify-center gap-1.5 rounded-lg px-1.5 py-2 text-[11px] font-black text-muted-foreground transition sm:gap-2 sm:px-2 sm:text-sm;
 }
 .fm-admin-tabs button[aria-selected="true"] {
   @apply bg-primary text-primary-foreground shadow-sm;
 }
 .fm-admin-stat {
-  @apply min-w-0 rounded-2xl border border-border bg-card p-3 transition hover:border-primary/50;
+  @apply min-w-0 rounded-xl border border-border bg-card p-2 transition hover:border-primary/50;
 }
-.fm-admin-stat strong { @apply text-2xl leading-none; }
+.fm-admin-stat strong { @apply text-lg leading-none; }
 .fm-admin-tool {
-  @apply flex min-w-0 justify-center whitespace-normal text-center;
+  @apply min-h-8 min-w-0 justify-center whitespace-normal px-1.5 py-1 text-[9px] text-center;
 }
 .fm-admin-alert {
-  @apply mb-4 flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive;
+  @apply mb-2 flex shrink-0 min-w-0 flex-wrap items-center justify-between gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-2 text-xs text-destructive;
 }
 .fm-admin-alert span { @apply min-w-0 flex-1 break-words; }
 .fm-admin-alert button { @apply rounded-lg border border-destructive/30 px-3 py-1.5 text-xs font-bold; }
 .fm-admin-workspace {
-  @apply min-w-0 overflow-hidden rounded-2xl border border-border bg-card;
+  @apply flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-card;
 }
-.fm-admin-list, .fm-admin-detail { @apply min-w-0; }
-.fm-admin-detail { @apply border-t border-border p-4; }
+.fm-admin-support { @apply flex min-h-0 flex-1 flex-col gap-2 overflow-hidden; }
+.fm-admin-list { @apply flex min-h-0 min-w-0 flex-col overflow-hidden; }
+.fm-admin-detail { @apply min-h-0 min-w-0 overflow-y-auto border-t border-border p-3; }
 .fm-admin-filters {
-  @apply grid grid-cols-2 gap-2 border-b border-border p-3 sm:grid-cols-3;
+  @apply grid shrink-0 grid-cols-2 gap-1.5 border-b border-border p-2 sm:grid-cols-4;
 }
 .fm-admin-filters input, .fm-admin-filters select {
-  @apply min-w-0 w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs font-bold text-foreground outline-none focus:border-primary;
+  @apply min-h-9 min-w-0 w-full rounded-lg border border-border bg-background px-2 py-2 text-[10px] font-bold text-foreground outline-none focus:border-primary;
 }
 .fm-admin-filters input { @apply pl-9; }
+.fm-admin-ticket-list { @apply min-h-0 flex-1 space-y-2 overflow-y-auto p-2; }
 .fm-admin-skeleton {
   @apply h-[68px] animate-pulse rounded-xl border border-border bg-muted/70;
 }
 .fm-site-settings {
-  @apply min-w-0 overflow-hidden rounded-2xl border border-border bg-card;
+  @apply flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-card;
 }
 .fm-site-intro {
-  @apply flex min-w-0 items-start gap-3 border-b border-border p-4 sm:p-5;
+  @apply flex min-w-0 shrink-0 items-start gap-2.5 border-b border-border p-3;
 }
 .fm-site-icon {
-  @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary;
+  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary;
 }
+.fm-site-links { @apply grid shrink-0 grid-cols-2 gap-2 border-b border-border px-3 py-2; }
+.fm-site-links a { @apply flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-lg border border-primary/25 bg-primary/5 px-2 py-2 text-center text-[10px] font-bold text-primary transition hover:bg-primary/10; }
+.fm-site-tabs { @apply grid shrink-0 grid-cols-3 gap-1 border-b border-border bg-background/40 p-1.5; }
+.fm-site-tabs button { @apply min-h-9 min-w-0 rounded-lg px-1 py-2 text-[10px] font-black text-muted-foreground transition; }
+.fm-site-tabs button[aria-selected="true"] { @apply bg-primary text-primary-foreground; }
+.fm-site-form { @apply min-h-0 flex-1 overflow-y-auto p-3; }
+.fm-site-savebar { @apply flex shrink-0 flex-col items-stretch gap-2 border-t border-border bg-card p-3 sm:flex-row sm:items-center sm:justify-between; }
+.fm-policy-editor-label { @apply flex h-full min-h-0 flex-col; }
 .fm-legal-editor {
-  @apply min-h-72 resize-y font-mono text-xs leading-relaxed;
+  @apply mt-1 min-h-[180px] w-full resize-none rounded-lg border border-border bg-background p-3 font-mono text-xs leading-relaxed text-foreground outline-none focus:border-primary;
+  height: min(54dvh, 540px);
 }
 .fm-legal-page {
   @apply min-h-[100dvh] overflow-x-hidden bg-[#0c1722] text-foreground;
@@ -495,11 +506,20 @@
 
 @media (min-width: 640px) {
   .fm-admin-workspace { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(280px, .95fr); }
-  .fm-admin-detail { @apply border-l border-t-0; }
+  .fm-admin-detail { @apply border-l border-t-0 p-4; }
   .fm-admin-list.fm-mobile-detail-open { display: block; }
 }
 @media (max-width: 639px) {
   .fm-admin-list.fm-mobile-detail-open { display: none; }
+}
+@media (max-height: 720px) {
+  .fm-admin-header { @apply py-2; }
+  .fm-admin-content { @apply py-2; }
+  .fm-admin-tabs { @apply mb-1; }
+  .fm-admin-stat { @apply p-1.5; }
+  .fm-admin-shortcuts { @apply p-1.5; }
+  .fm-admin-support { @apply gap-1; }
+  .fm-legal-editor { height: 46dvh; }
 }
 
 /* Phones can request "Desktop site", which makes the viewport appear wide

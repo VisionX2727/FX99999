@@ -222,7 +222,7 @@ export function sendDriverFile(token: string, memberId: string, file: DriverDocu
 }
 
 export function getSupportTickets(token: string) {
-  return request<{ tickets: SupportTicket[] }>("/support", token);
+  return request<{ tickets: SupportTicket[] }>("/support", token, undefined, "api");
 }
 
 export function createSupportTicket(token: string, payload: {
@@ -236,7 +236,7 @@ export function createSupportTicket(token: string, payload: {
   return request<{ ticket: SupportTicket }>("/support", token, {
     method: "POST",
     body: JSON.stringify(payload),
-  });
+  }, "api");
 }
 
 export function getAdminStats(token: string) {

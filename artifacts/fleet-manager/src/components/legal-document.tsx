@@ -13,8 +13,9 @@ function interpolate(content: string, site: SiteContent) {
     businessAddress: site.businessAddress,
     supportEmail: site.supportEmail,
     privacyEmail: site.privacyEmail,
+    supportPhone: site.supportPhone,
   };
-  return content.replace(/\{\{(termsUpdatedAt|privacyUpdatedAt|legalName|businessAddress|supportEmail|privacyEmail)\}\}/g, (_, key: string) => values[key] || "");
+  return content.replace(/\{\{(termsUpdatedAt|privacyUpdatedAt|legalName|businessAddress|supportEmail|privacyEmail|supportPhone)\}\}/g, (_, key: string) => values[key] || "");
 }
 
 function inlineMarkdown(text: string): ReactNode[] {
@@ -111,7 +112,10 @@ export function LegalDocumentPage({ kind }: { kind: LegalKind }) {
         {content && (
           <aside className="fm-legal-contact">
             <div><strong>Need help?</strong><span>Contact the Fleetvix team about this document.</span></div>
-            <a href={`mailto:${kind === "terms" ? content.supportEmail : content.privacyEmail}`}>{kind === "terms" ? content.supportEmail : content.privacyEmail}<ArrowUpRight size={14} /></a>
+            <div className="flex min-w-0 flex-col gap-2 sm:items-end">
+              {(kind === "terms" ? content.supportEmail : content.privacyEmail) && <a href={`mailto:${kind === "terms" ? content.supportEmail : content.privacyEmail}`}>{kind === "terms" ? content.supportEmail : content.privacyEmail}<ArrowUpRight size={14} /></a>}
+              {content.supportPhone && <a href={`tel:${content.supportPhone}`}>{content.supportPhone}<ArrowUpRight size={14} /></a>}
+            </div>
           </aside>
         )}
       </div>

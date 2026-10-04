@@ -2,7 +2,7 @@ import { Layout } from "@/components/layout";
 import { useAuth } from "@/lib/auth";
 import { createSupportTicket, getSupportTickets, type SupportTicket } from "@/lib/workspace";
 import { ArrowLeft, CheckCircle2, LifeBuoy, Paperclip, Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 
 const categories = [
@@ -27,6 +27,7 @@ export default function Support() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const attachmentInput = useRef<HTMLInputElement>(null);
 
   const loadTickets = async () => {
     if (!session) return;
@@ -41,12 +42,27 @@ export default function Support() {
   const handleAttachment = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Attachments must be 5 MB or smaller.");
+    const allowedTypes = new Set(["image/png", "image/jpeg", "image/webp", "image/gif", "application/pdf"]);
+    if (!allowedTypes.has(file.type)) {
+      setError("Choose a PNG, JPG, WebP, GIF or PDF file.");
+      event.target.value = "";
       return;
     }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Attachments must be 5 MB or smaller.");
+      event.target.value = "";
+      return;
+    }
+    setError("");
     const reader = new FileReader();
-    reader.onload = () => setAttachment({ dataUrl: String(reader.result), name: file.name });
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setAttachment({ dataUrl: reader.result, name: file.name });
+      } else {
+        setError("Could not read that attachment. Please choose it again.");
+      }
+    };
+    reader.onerror = () => setError("Could not read that attachment. Please choose it again.");
     reader.readAsDataURL(file);
   };
 
@@ -67,6 +83,7 @@ export default function Support() {
       setSubject("");
       setDescription("");
       setAttachment(null);
+      if (attachmentInput.current) attachmentInput.current.value = "";
       setMessage("Your support request has been submitted successfully.");
       await loadTickets();
     } catch (cause) {
@@ -91,7 +108,7 @@ export default function Support() {
             <label>Priority<select value={priority} onChange={(event) => setPriority(event.target.value as SupportTicket["priority"])}><option>Low</option><option>Medium</option><option>High</option></select></label>
             <label>Subject<input required maxLength={160} value={subject} onChange={(event) => setSubject(event.target.value)} placeholder="Short summary" /></label>
             <label>Detailed description<textarea required maxLength={5000} value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Explain what happened and what you expected." /></label>
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border p-4 text-sm font-bold text-primary"><Paperclip size={17} />{attachment ? attachment.name : "Add screenshot or PDF"}<input type="file" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf" onChange={handleAttachment} className="sr-only" /></label>
+            <label className="flex min-w-0 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border p-4 text-sm font-bold text-primary"><Paperclip size={17} /><span className="truncate">{attachment ? attachment.name : "Add screenshot or PDF (up to 5 MB)"}</span><input ref={attachmentInput} type="file" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf" onChange={handleAttachment} className="sr-only" /></label>
             <button type="submit" disabled={busy} className="fm-primary-button fm-submit-button"><Send size={17} />{busy ? "Submitting..." : "Submit request"}</button>
           </form>
           {message && <p className="rounded-xl bg-emerald-500/10 p-3 text-sm font-semibold text-emerald-300"><CheckCircle2 className="mr-2 inline" size={16} />{message}</p>}
