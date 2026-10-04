@@ -9,6 +9,12 @@ The first milestone intentionally keeps fleet records local-first while using Su
 
 **How to apply:** Future persistence work should preserve the current entity relationships and replace local storage behind the store boundary rather than changing the user-facing flows.
 
+Policy navigation must work in the same tab on mobile; opening policy pages in new tabs is unreliable in the mobile preview.
+
+**Why:** The user reports that external/new-tab policy links do not open on their phone.
+
+**How to apply:** Use in-app, same-tab routes for Admin policy shortcuts and footer links, and make the legal-page Back control navigate directly to the app entry route.
+
 The app now gates all routes behind Google OAuth, scopes fleet data to the authenticated Supabase user, and syncs the workspace into that user's Supabase auth metadata while retaining a user-specific local cache. Receipts use a branded invoice/project-report HTML preview and browser print/save-PDF flow, deriving customer data from Khata and owner/logo data from Settings.
 
 **Why:** The user requested account-specific access and a receipt matching the supplied service invoice image rather than the earlier raw text download.

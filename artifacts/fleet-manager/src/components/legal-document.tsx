@@ -91,7 +91,7 @@ export function LegalDocumentPage({ kind }: { kind: LegalKind }) {
     <main className="fm-legal-page">
       <header className="fm-legal-header">
         <Link href="/" className="fm-legal-brand"><span className="fm-legal-mark"><ShieldCheck size={19} /></span><span>Fleetvix<span className="fm-legal-brand-sub">FIELD OPERATIONS</span></span></Link>
-        <Link href="/" className="fm-legal-back"><ArrowLeft size={16} /> Back to sign in</Link>
+        <a href={new URL(import.meta.env.BASE_URL || "/", window.location.origin).toString()} aria-label="Back to sign in" className="fm-legal-back"><ArrowLeft size={16} /> Back</a>
       </header>
       <div className="fm-legal-wrap">
         <div className="fm-legal-kicker"><Icon size={15} /> PUBLIC DOCUMENT</div>

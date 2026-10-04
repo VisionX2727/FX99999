@@ -204,8 +204,8 @@ export default function AdminDashboard() {
           <section className="fm-site-settings">
             <div className="fm-site-intro"><div className="fm-site-icon"><FileText size={18} /></div><div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-widest text-primary">Public site settings</p><h2 className="mt-0.5 text-base font-black">Legal documents & contact details</h2><p className="mt-0.5 text-xs text-muted-foreground">Edit the published policies and contact information.</p></div></div>
             <nav className="fm-site-links" aria-label="Direct public policy links">
-              <a href="/privacy-policy" target="_blank" rel="noreferrer"><ShieldCheck size={15} />Open Privacy Policy</a>
-              <a href="/terms-and-conditions" target="_blank" rel="noreferrer"><FileText size={15} />Open Terms & Conditions</a>
+              <Link href="/privacy-policy"><ShieldCheck size={15} />Open Privacy Policy</Link>
+              <Link href="/terms-and-conditions"><FileText size={15} />Open Terms & Conditions</Link>
             </nav>
             <div className="fm-site-tabs" role="tablist" aria-label="Site settings">
               <button type="button" role="tab" aria-selected={sitePanel === "contacts"} onClick={() => { setSitePanel("contacts"); setSiteNotice(""); }}>Contact details</button>
